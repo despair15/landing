@@ -1,0 +1,714 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>META Investment</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #0d1f0d 0%, #1a3a1a 50%, #0f2e0f 100%);
+            min-height: 100vh;
+            color: #fff;
+            overflow-x: hidden;
+        }
+
+        /* Бегущая строка */
+        .ticker {
+            background: rgba(0, 255, 100, 0.1);
+            border-bottom: 1px solid rgba(0, 255, 100, 0.3);
+            padding: 12px 0;
+            overflow: hidden;
+            position: fixed;
+            top: 0;
+            width: 100%;
+            z-index: 1000;
+            backdrop-filter: blur(10px);
+        }
+
+        .ticker-content {
+            display: flex;
+            animation: scroll 20s linear infinite;
+            white-space: nowrap;
+        }
+
+        .ticker-item {
+            display: inline-flex;
+            align-items: center;
+            margin-right: 40px;
+            font-size: 14px;
+        }
+
+        .ticker-symbol {
+            color: #00ff88;
+            font-weight: bold;
+            margin-right: 8px;
+        }
+
+        .ticker-change {
+            color: #00ff88;
+            margin-left: 8px;
+        }
+
+        .ticker-change.negative {
+            color: #ff4444;
+        }
+
+        @keyframes scroll {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(-50%); }
+        }
+
+        /* Основной контент */
+        .container {
+            padding: 70px 20px 100px;
+            max-width: 480px;
+            margin: 0 auto;
+        }
+
+        /* Хедер */
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .logo {
+            font-size: 42px;
+            font-weight: 900;
+            background: linear-gradient(135deg, #00ff88, #00cc6a);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 10px;
+            letter-spacing: -2px;
+        }
+
+        .tagline {
+            color: rgba(255,255,255,0.7);
+            font-size: 16px;
+        }
+
+        /* Главный CTA */
+        .hero {
+            background: linear-gradient(135deg, rgba(0,255,136,0.15), rgba(0,204,106,0.05));
+            border: 1px solid rgba(0,255,136,0.3);
+            border-radius: 24px;
+            padding: 30px;
+            margin-bottom: 30px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(0,255,136,0.1) 0%, transparent 70%);
+            animation: pulse 4s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); opacity: 0.5; }
+            50% { transform: scale(1.1); opacity: 0.8; }
+        }
+
+        .hero h1 {
+            font-size: 28px;
+            margin-bottom: 15px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .hero p {
+            color: rgba(255,255,255,0.8);
+            margin-bottom: 25px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #00ff88, #00cc6a);
+            color: #0d1f0d;
+            border: none;
+            padding: 16px 32px;
+            font-size: 16px;
+            font-weight: 700;
+            border-radius: 50px;
+            cursor: pointer;
+            width: 100%;
+            transition: all 0.3s;
+            position: relative;
+            z-index: 1;
+            box-shadow: 0 4px 20px rgba(0,255,136,0.4);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 30px rgba(0,255,136,0.6);
+        }
+
+        /* Карточки доходов */
+        .income-section {
+            margin-bottom: 30px;
+        }
+
+        .section-title {
+            font-size: 20px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .section-title::before {
+            content: '◆';
+            color: #00ff88;
+        }
+
+        .cards-grid {
+            display: grid;
+            gap: 15px;
+        }
+
+        .income-card {
+            background: linear-gradient(135deg, rgba(255,255,255,0.05), rgba(255,255,255,0.02));
+            border: 1px solid rgba(0,255,136,0.2);
+            border-radius: 16px;
+            padding: 20px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .income-card::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 100px;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(0,255,136,0.1));
+        }
+
+        .card-label {
+            font-size: 12px;
+            color: rgba(255,255,255,0.6);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 8px;
+        }
+
+        .card-amount {
+            font-size: 32px;
+            font-weight: 800;
+            color: #00ff88;
+            margin-bottom: 5px;
+        }
+
+        .card-period {
+            font-size: 14px;
+            color: rgba(255,255,255,0.7);
+        }
+
+        .card-growth {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(0,255,136,0.2);
+            color: #00ff88;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+        /* Инвестиции */
+        .invest-section {
+            background: linear-gradient(135deg, rgba(0,255,136,0.1), rgba(0,100,50,0.1));
+            border: 1px solid rgba(0,255,136,0.25);
+            border-radius: 20px;
+            padding: 25px;
+            margin-bottom: 30px;
+        }
+
+        .invest-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 15px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .invest-item:last-child {
+            border-bottom: none;
+        }
+
+        .invest-info h4 {
+            font-size: 16px;
+            margin-bottom: 4px;
+        }
+
+        .invest-info p {
+            font-size: 13px;
+            color: rgba(255,255,255,0.6);
+        }
+
+        .invest-yield {
+            color: #00ff88;
+            font-weight: 700;
+            font-size: 18px;
+        }
+
+        /* Дополнительные CTA */
+        .cta-section {
+            display: grid;
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .btn-secondary {
+            background: transparent;
+            border: 2px solid rgba(0,255,136,0.5);
+            color: #00ff88;
+            padding: 14px 24px;
+            font-size: 15px;
+            font-weight: 600;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-secondary:hover {
+            background: rgba(0,255,136,0.1);
+            border-color: #00ff88;
+        }
+
+        /* Футер - неактивные кнопки */
+        .footer {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(13, 31, 13, 0.95);
+            backdrop-filter: blur(20px);
+            border-top: 1px solid rgba(0,255,136,0.2);
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-around;
+            z-index: 100;
+        }
+
+        .footer-item {
+            color: rgba(255,255,255,0.3);
+            font-size: 12px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            cursor: not-allowed;
+            user-select: none;
+            pointer-events: none;
+        }
+
+        .footer-icon {
+            font-size: 20px;
+            opacity: 0.5;
+        }
+
+        /* Модальное окно */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.8);
+            z-index: 2000;
+            justify-content: center;
+            align-items: flex-end;
+            backdrop-filter: blur(5px);
+        }
+
+        .modal-overlay.active {
+            display: flex;
+        }
+
+        .modal {
+            background: linear-gradient(180deg, #1a3a1a, #0d1f0d);
+            border-radius: 24px 24px 0 0;
+            padding: 30px 25px;
+            width: 100%;
+            max-width: 480px;
+            border-top: 2px solid #00ff88;
+            animation: slideUp 0.3s ease-out;
+        }
+
+        @keyframes slideUp {
+            from { transform: translateY(100%); }
+            to { transform: translateY(0); }
+        }
+
+        .modal-header {
+            text-align: center;
+            margin-bottom: 25px;
+        }
+
+        .modal-title {
+            font-size: 24px;
+            margin-bottom: 8px;
+        }
+
+        .modal-subtitle {
+            color: rgba(255,255,255,0.6);
+            font-size: 14px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 13px;
+            color: rgba(255,255,255,0.8);
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .form-input {
+            width: 100%;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(0,255,136,0.3);
+            border-radius: 12px;
+            padding: 14px 16px;
+            color: #fff;
+            font-size: 16px;
+            transition: all 0.3s;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: #00ff88;
+            background: rgba(0,255,136,0.05);
+        }
+
+        .form-input::placeholder {
+            color: rgba(255,255,255,0.3);
+        }
+
+        .btn-submit {
+            width: 100%;
+            background: linear-gradient(135deg, #00ff88, #00cc6a);
+            color: #0d1f0d;
+            border: none;
+            padding: 16px;
+            font-size: 16px;
+            font-weight: 700;
+            border-radius: 50px;
+            cursor: pointer;
+            margin-top: 10px;
+            box-shadow: 0 4px 20px rgba(0,255,136,0.4);
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: none;
+            border: none;
+            color: rgba(255,255,255,0.6);
+            font-size: 24px;
+            cursor: pointer;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            transition: all 0.3s;
+        }
+
+        .modal-close:hover {
+            background: rgba(255,255,255,0.1);
+            color: #fff;
+        }
+
+        .modal-wrapper {
+            position: relative;
+            width: 100%;
+            display: flex;
+            justify-content: center;
+        }
+
+        /* Успешная отправка */
+        .success-message {
+            display: none;
+            text-align: center;
+            padding: 40px 20px;
+        }
+
+        .success-icon {
+            font-size: 60px;
+            margin-bottom: 20px;
+        }
+
+        .success-text {
+            font-size: 20px;
+            margin-bottom: 10px;
+        }
+
+        .success-subtext {
+            color: rgba(255,255,255,0.6);
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Бегущая строка -->
+    <div class="ticker">
+        <div class="ticker-content">
+            <div class="ticker-item">
+                <span class="ticker-symbol">AAPL</span>
+                <span>187.45</span>
+                <span class="ticker-change">+2.34%</span>
+            </div>
+            <div class="ticker-item">
+                <span class="ticker-symbol">TSLA</span>
+                <span>245.67</span>
+                <span class="ticker-change">+5.12%</span>
+            </div>
+            <div class="ticker-item">
+                <span class="ticker-symbol">NVDA</span>
+                <span>892.10</span>
+                <span class="ticker-change">+8.45%</span>
+            </div>
+            <div class="ticker-item">
+                <span class="ticker-symbol">META</span>
+                <span>512.30</span>
+                <span class="ticker-change">+3.21%</span>
+            </div>
+            <div class="ticker-item">
+                <span class="ticker-symbol">GOOGL</span>
+                <span>156.78</span>
+                <span class="ticker-change negative">-0.45%</span>
+            </div>
+            <div class="ticker-item">
+                <span class="ticker-symbol">MSFT</span>
+                <span>428.90</span>
+                <span class="ticker-change">+1.89%</span>
+            </div>
+            <div class="ticker-item">
+                <span class="ticker-symbol">AMZN</span>
+                <span>178.23</span>
+                <span class="ticker-change">+4.56%</span>
+            </div>
+            <!-- Дубли для бесконечной прокрутки -->
+            <div class="ticker-item">
+                <span class="ticker-symbol">AAPL</span>
+                <span>187.45</span>
+                <span class="ticker-change">+2.34%</span>
+            </div>
+            <div class="ticker-item">
+                <span class="ticker-symbol">TSLA</span>
+                <span>245.67</span>
+                <span class="ticker-change">+5.12%</span>
+            </div>
+            <div class="ticker-item">
+                <span class="ticker-symbol">NVDA</span>
+                <span>892.10</span>
+                <span class="ticker-change">+8.45%</span>
+            </div>
+            <div class="ticker-item">
+                <span class="ticker-symbol">META</span>
+                <span>512.30</span>
+                <span class="ticker-change">+3.21%</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Основной контент -->
+    <div class="container">
+        
+        <!-- Хедер -->
+        <div class="header">
+            <div class="logo">META</div>
+            <div class="tagline">Инвестируй в будущее</div>
+        </div>
+
+        <!-- Главный блок -->
+        <div class="hero">
+            <h1>Пассивный доход от $500/мес</h1>
+            <p>Инвестиционные стратегии с доходностью до 24% годовых</p>
+            <button class="btn-primary" onclick="openModal()">Получить консультацию</button>
+        </div>
+
+        <!-- Карточки доходов -->
+        <div class="income-section">
+            <h3 class="section-title">Ваш потенциальный доход</h3>
+            <div class="cards-grid">
+                <div class="income-card">
+                    <div class="card-label">Стартовый портфель</div>
+                    <div class="card-amount">$2,400</div>
+                    <div class="card-period">в год при $10,000</div>
+                    <div class="card-growth">+24%</div>
+                </div>
+                <div class="income-card">
+                    <div class="card-label">Оптимальный портфель</div>
+                    <div class="card-amount">$12,000</div>
+                    <div class="card-period">в год при $50,000</div>
+                    <div class="card-growth">+24%</div>
+                </div>
+                <div class="income-card">
+                    <div class="card-label">Премиум портфель</div>
+                    <div class="card-amount">$60,000</div>
+                    <div class="card-period">в год при $250,000</div>
+                    <div class="card-growth">+24%</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Инвестиции -->
+        <div class="invest-section">
+            <h3 class="section-title">Топ инструментов</h3>
+            <div class="invest-item">
+                <div class="invest-info">
+                    <h4>ETF Фонды</h4>
+                    <p>Диверсификация рисков</p>
+                </div>
+                <div class="invest-yield">до 18%</div>
+            </div>
+            <div class="invest-item">
+                <div class="invest-info">
+                    <h4>Технологические акции</h4>
+                    <p>META, NVDA, TSLA</p>
+                </div>
+                <div class="invest-yield">до 35%</div>
+            </div>
+            <div class="invest-item">
+                <div class="invest-info">
+                    <h4>Облигации</h4>
+                    <p>Стабильный доход</p>
+                </div>
+                <div class="invest-yield">до 12%</div>
+            </div>
+            <div class="invest-item">
+                <div class="invest-info">
+                    <h4>Крипто-ETF</h4>
+                    <p>Регулируемые активы</p>
+                </div>
+                <div class="invest-yield">до 45%</div>
+            </div>
+        </div>
+
+        <!-- Дополнительные кнопки -->
+        <div class="cta-section">
+            <button class="btn-secondary" onclick="openModal()">Ожидание звонка</button>
+            <button class="btn-secondary" onclick="openModal()">Рассчитать портфель</button>
+        </div>
+
+    </div>
+
+    <!-- Футер с неактивными элементами -->
+    <div class="footer">
+        <div class="footer-item">
+            <span class="footer-icon">📋</span>
+            <span>Условия</span>
+        </div>
+        <div class="footer-item">
+            <span class="footer-icon">ℹ️</span>
+            <span>О нас</span>
+        </div>
+        <div class="footer-item">
+            <span class="footer-icon">💬</span>
+            <span>Поддержка</span>
+        </div>
+        <div class="footer-item">
+            <span class="footer-icon">🔒</span>
+            <span>Безопасность</span>
+        </div>
+    </div>
+
+    <!-- Модальное окно -->
+    <div class="modal-overlay" id="modal" onclick="closeModal(event)">
+        <div class="modal-wrapper">
+            <div class="modal">
+                <button class="modal-close" onclick="closeModal()">×</button>
+                
+                <div id="form-content">
+                    <div class="modal-header">
+                        <h2 class="modal-title">Заявка на консультацию</h2>
+                        <p class="modal-subtitle">Заполните форму, и мы свяжемся с вами</p>
+                    </div>
+                    
+                    <form onsubmit="submitForm(event)">
+                        <div class="form-group">
+                            <label class="form-label">Имя</label>
+                            <input type="text" class="form-input" placeholder="Иван" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label">Фамилия</label>
+                            <input type="text" class="form-input" placeholder="Иванов" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label">Телефон (Европа)</label>
+                            <input type="tel" class="form-input" placeholder="+49 151 12345678" pattern="[\+][0-9\s]{10,15}" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label">Email</label>
+                            <input type="email" class="form-input" placeholder="ivan@email.com" required>
+                        </div>
+                        
+                        <button type="submit" class="btn-submit">Отправить заявку</button>
+                    </form>
+                </div>
+
+                <div class="success-message" id="success">
+                    <div class="success-icon">✅</div>
+                    <div class="success-text">Заявка отправлена!</div>
+                    <div class="success-subtext">Мы перезвоним вам в течение 15 минут</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function openModal() {
+            document.getElementById('modal').classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeModal(event) {
+            if (!event || event.target.id === 'modal' || event.target.classList.contains('modal-close')) {
+                document.getElementById('modal').classList.remove('active');
+                document.body.style.overflow = '';
+                
+                // Сброс формы
+                setTimeout(() => {
+                    document.getElementById('form-content').style.display = 'block';
+                    document.getElementById('success').style.display = 'none';
+                }, 300);
+            }
+        }
+
+        function submitForm(event) {
+            event.preventDefault();
+            document.getElementById('form-content').style.display = 'none';
+            document.getElementById('success').style.display = 'block';
+        }
+    </script>
+
+</body>
+</html>
